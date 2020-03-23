@@ -11,8 +11,12 @@
 <div id="uploader" class="wu-example">
     <!--用来存放文件信息-->
     <div id="thelist" class="uploader-list"></div>
+    <div id="picker">选择大文件</div>
+    <table class="table table-bordered" id="fileTable" >
+
+    </table>
     <div class="btns">
-        <div id="picker">选择大文件</div>
+
         <button id="ctlBtn" class="btn btn-default">开始上传</button>
     </div>
 </div>
@@ -121,11 +125,17 @@
 
     // 当有文件被添加进队列的时候
     uploader.on('fileQueued', function (file) {
-        console.log("fileQueued");
-        $thelist.append('<div id="' + file.id + '" class="item">' +
-                '<h4 class="info">' + file.name + '</h4>' +
-                '<p class="state">等待上传...</p>' +
-                '</div>');
+        var html = "<thead><tr><td>视频名称</td> <td>大小</td>\n" +
+            "       <td>状态</td><td>上传进度</td><td>操作</td></tr></thead><tbody><tr>\n";
+        html += "<td>"+file.name+"</td>";
+        html += "<td>"+(file.size/1024/10254).toFixed(2)+"</td>";
+        html += "<td>"+"上传中"+"</td>";
+        html += "<td>"+""+"</td>";
+        html += "<td>"+"<button class=\"btn btn-default\" onclick='upPause()'>暂停</button><button class=\"btn btn-default\" onclick='upCancel()'>取消</button>"+"</td>";
+        html += "</tr></tbody>";
+
+        $("#fileTable").append(html)
+
     });
 
     //当某个文件的分块在发送前触发，主要用来询问是否要添加附带参数，大文件在开起分片上传的前提下此事件可能会触发多次。
@@ -161,7 +171,14 @@
         uploader.upload();
         console.log("上传成功");
     });
-
+    // 暂停
+    function upPause() {
+        uploader.stop();
+    }
+    // 取消
+    function upCancel() {
+        uploader.removeFile();
+    }
     /**
      *  生成进度条封装方法
      * @param file 文件
